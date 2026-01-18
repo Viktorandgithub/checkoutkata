@@ -1,7 +1,7 @@
 {
     "name": "kata/checkout",
     "description": "Kata09: Back to the Checkout",
-    "type": "project",
+    "type": "library",
     "require": {
         "php": ">=8.2"
     },

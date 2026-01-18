@@ -4,37 +4,28 @@ declare(strict_types=1);
 
 namespace Checkout;
 
-use Checkout\Pricing\Strategy;
+use Checkout\Pricing\Contract\PricingEngine;
 
-final class Checkout
+final class Checkout implements CheckoutInterface
 {
-    /** @var array<string, int> */
-    private array $cart = [];
+    private Basket $basket;
+    private readonly PricingEngine $pricingEngine;
 
-    /**
-     * @param array<string, Strategy> $rules
-     */
     public function __construct(
-        private readonly array $rules = []
-    ) {}
+        PricingEngine $pricingEngine
+    ) {
+        $this->basket = new Basket();
+        $this->pricingEngine = $pricingEngine;
+    }
 
     public function scan(SKU $sku): void
     {
-        $key = $sku->value;
-        $this->cart[$key] = ($this->cart[$key] ?? 0) + 1;
+        $this->basket->add($sku);
     }
 
     public function total(): int
     {
-        $total = 0;
-        
-        foreach ($this->cart as $sku => $quantity) {
-            if (isset($this->rules[$sku])) {
-                $total += $this->rules[$sku]->calculate($quantity);
-            }
-        }
-        
-        return $total;
+        return $this->pricingEngine->total($this->basket);
     }
 }
 
